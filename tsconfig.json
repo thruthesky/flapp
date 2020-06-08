@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "module": "commonjs", // node 는 기본적으로 commonjs 를 사용
+        "esModuleInterop": true,
+        "target": "es6", // javascript 로 컴파일 할 language level
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist", // javascript 가 컴파일되어 저장되는 공간
+        "types": [
+            "node" // node 관련 라이브러리. process 등을 사용 할 수 있음.
+        ],
+    },
+    "lib": [
+        "es2015" // Promise 등이 가능한 버전
+    ]
+}
+
