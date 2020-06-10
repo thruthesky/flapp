@@ -28,28 +28,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const yargs = __importStar(require("yargs"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const yaml = __importStar(require("js-yaml"));
 const convert = __importStar(require("xml-js"));
+const ncp_1 = __importDefault(require("ncp"));
 class App {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.parse()))
+            if (!(yield this.parseFlappSettings()))
                 return;
             this.newPackageName = this.settings['apps'][this.app]['AppId'];
             this.currentPackageName = yield this.getCurrentAndroidPackageName();
+            console.log(`Current Package: ${this.currentPackageName}`);
+            console.log(`New Package: ${this.newPackageName}`);
             try {
-                yield this.linkPubspec();
                 yield this.patchAndroidAppId();
                 yield this.patchAndroidGradle();
                 yield this.patchAndroidKotlin();
-                yield this.linkInfoPlist();
-                yield this.linkGoogleServiceJson();
-                yield this.linkGoogleServiceInfoPlist();
-                yield this.linkKeyProperties();
+                yield this.linkFiles();
+                yield this.copyFolders();
+                // await this.linkPubspec();
+                // await this.linkInfoPlist();
+                // await this.linkGoogleServiceJson();
+                // await this.linkGoogleServiceInfoPlist();
+                // await this.linkKeyProperties();
             }
             catch (e) {
                 this.error(e);
@@ -61,7 +68,7 @@ class App {
         console.log(msg);
         console.log('@see https://github.com/thruthesky/flutter-multi-apps');
     }
-    parse() {
+    parseFlappSettings() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!yargs.argv.app) {
                 this.error('Input app');
@@ -114,6 +121,7 @@ class App {
             const gradleContent = fs.readFileSync(gradlePath).toString();
             const temp = gradleContent.replace(this.currentPackageName, this.newPackageName);
             fs.writeFileSync(gradlePath, temp);
+            console.log('Patch Android Gradle');
         });
     }
     /**
@@ -122,10 +130,10 @@ class App {
     patchAndroidKotlin() {
         return __awaiter(this, void 0, void 0, function* () {
             const mainActivityPath = path.join(this.projectPath, this.settings['MainActivity']);
-            console.log('Mainactivit path: ', mainActivityPath);
             const mainActivityPathContent = fs.readFileSync(mainActivityPath).toString();
             const temp = mainActivityPathContent.replace(this.currentPackageName, this.newPackageName);
             fs.writeFileSync(mainActivityPath, temp);
+            console.log('Patch Android Kotalin Mainactivit');
         });
     }
     /**
@@ -139,72 +147,128 @@ class App {
             const mainXml = fs.readFileSync(main).toString();
             const debugXml = fs.readFileSync(debug).toString();
             const profileXml = fs.readFileSync(profile).toString();
-            console.log("current package: ", this.currentPackageName, " : new package: ", this.newPackageName);
             let temp = mainXml.replace(this.currentPackageName, this.newPackageName);
             fs.writeFileSync(main, temp);
             temp = debugXml.replace(this.currentPackageName, this.newPackageName);
             fs.writeFileSync(debug, temp);
             temp = profileXml.replace(this.currentPackageName, this.newPackageName);
             fs.writeFileSync(profile, temp);
+            console.log('Patch Android App Id');
         });
     }
-    linkPubspec() {
+    // async linkPubspec() {
+    //     console.log('re-link pubspeck.yaml');
+    //     const currentPubspec = fs.readFileSync(this.projectPubspecPath).toString();
+    //     const currDoc = await yaml.safeLoad(currentPubspec);
+    //     console.log('current app: ', currDoc['name'], currDoc['version']);
+    //     const newPubspec = fs.readFileSync(this.newPubspecPath).toString();
+    //     const newDoc = await yaml.safeLoad(newPubspec);
+    //     console.log('new app: ', newDoc['name'], newDoc['version']);
+    //     if (fs.existsSync(this.projectPubspecPath))
+    //         fs.unlinkSync(this.projectPubspecPath);
+    //     fs.linkSync(this.newPubspecPath, this.projectPubspecPath);
+    //     console.log('success');
+    // }
+    // async linkInfoPlist() {
+    //     console.log('re-link Info.plist');
+    //     const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.Info.plist`);
+    //     const dst = path.join(this.projectPath, 'ios', 'Runner', 'Info.plist');
+    //     if (fs.existsSync(dst))
+    //         fs.unlinkSync(dst);
+    //     fs.linkSync(src, dst);
+    //     console.log('success');
+    // }
+    // async linkGoogleServiceJson() {
+    //     console.log('re-link google-services.json');
+    //     const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.google-services.json`);
+    //     const dst = path.join(this.projectPath, 'android', 'app', 'google-services.json');
+    //     if (fs.existsSync(dst))
+    //         fs.unlinkSync(dst);
+    //     fs.linkSync(src, dst);
+    //     console.log('success');
+    // }
+    // async linkGoogleServiceInfoPlist() {
+    //     console.log('re-link GoogleService-Info.plist');
+    //     const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.GoogleService-Info.plist`);
+    //     const dst = path.join(this.projectPath, 'ios', 'Runner', 'GoogleService-Info.plist');
+    //     if (fs.existsSync(dst))
+    //         fs.unlinkSync(dst);
+    //     fs.linkSync(src, dst);
+    //     console.log('success');
+    // }
+    // async linkKeyProperties() {
+    //     console.log('re-link key.properties');
+    //     const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.key.properties`);
+    //     const dst = path.join(this.projectPath, 'android', 'key.properties');
+    //     if (fs.existsSync(dst))
+    //         fs.unlinkSync(dst);
+    //     fs.linkSync(src, dst);
+    //     console.log('success');
+    // }
+    linkFiles() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('re-link pubspeck.yaml');
-            const currentPubspec = fs.readFileSync(this.projectPubspecPath).toString();
-            const currDoc = yield yaml.safeLoad(currentPubspec);
-            console.log('current app: ', currDoc['name'], currDoc['version']);
-            const newPubspec = fs.readFileSync(this.newPubspecPath).toString();
-            const newDoc = yield yaml.safeLoad(newPubspec);
-            console.log('new app: ', newDoc['name'], newDoc['version']);
-            if (fs.existsSync(this.projectPubspecPath))
-                fs.unlinkSync(this.projectPubspecPath);
-            fs.linkSync(this.newPubspecPath, this.projectPubspecPath);
-            console.log('success');
+            const app = this.settings['apps'][this.app];
+            if (app['files'] !== void 0) {
+                const files = app['files'];
+                for (let f of Object.keys(files)) {
+                    // console.log(f, '=>', files[f]);
+                    const src = path.join(this.projectPath, f);
+                    // console.log(src);
+                    if (fs.existsSync(src)) { // 소스 파일이 존재하면
+                        const dst = path.join(this.projectPath, files[f]);
+                        // 목적 파일이 존재하면 삭제
+                        if (fs.existsSync(dst)) {
+                            fs.unlinkSync(dst);
+                        }
+                        // 링크를 건다
+                        fs.linkSync(src, dst);
+                        console.log(`Hard link: ${src} => ${dst}`);
+                    }
+                    else {
+                        this.error(`Source: ${src} does not exist. abort!`);
+                        break;
+                    }
+                }
+            }
         });
     }
-    linkInfoPlist() {
+    copyFolders() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('re-link Info.plist');
-            const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.Info.plist`);
-            const dst = path.join(this.projectPath, 'ios', 'Runner', 'Info.plist');
-            if (fs.existsSync(dst))
-                fs.unlinkSync(dst);
-            fs.linkSync(src, dst);
-            console.log('success');
-        });
-    }
-    linkGoogleServiceJson() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('re-link google-services.json');
-            const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.google-services.json`);
-            const dst = path.join(this.projectPath, 'android', 'app', 'google-services.json');
-            if (fs.existsSync(dst))
-                fs.unlinkSync(dst);
-            fs.linkSync(src, dst);
-            console.log('success');
-        });
-    }
-    linkGoogleServiceInfoPlist() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('re-link GoogleService-Info.plist');
-            const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.GoogleService-Info.plist`);
-            const dst = path.join(this.projectPath, 'ios', 'Runner', 'GoogleService-Info.plist');
-            if (fs.existsSync(dst))
-                fs.unlinkSync(dst);
-            fs.linkSync(src, dst);
-            console.log('success');
-        });
-    }
-    linkKeyProperties() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('re-link key.properties');
-            const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.key.properties`);
-            const dst = path.join(this.projectPath, 'android', 'key.properties');
-            if (fs.existsSync(dst))
-                fs.unlinkSync(dst);
-            fs.linkSync(src, dst);
-            console.log('success');
+            const app = this.settings['apps'][this.app];
+            if (app['folders'] !== void 0) {
+                const files = app['folders'];
+                for (let f of Object.keys(files)) {
+                    const src = path.join(this.projectPath, f);
+                    if (fs.existsSync(src)) {
+                        const dst = path.join(this.projectPath, files[f]);
+                        ncp_1.default(src, dst, { limit: 16 }, (err) => {
+                            if (err) {
+                                this.error(err);
+                            }
+                            else {
+                                console.log(`Folder copied: ${src} => ${dst}`);
+                            }
+                        });
+                    }
+                    else {
+                        this.error(`Folder Copy: Source: ${src} does not exist. abort!`);
+                        break;
+                    }
+                    // if (fs.existsSync(src)) { // 소스 파일이 존재하면
+                    //     const dst = path.join(this.projectPath, files[f]);
+                    //     // 목적 파일이 존재하면 삭제
+                    //     if (fs.existsSync(dst)) {
+                    //         fs.unlinkSync(dst);
+                    //     }
+                    //     // 링크를 건다
+                    //     fs.linkSync(src, dst);
+                    //     console.log(`Hard link: ${src} => ${dst}`);
+                    // } else {
+                    //     this.error(`Source: ${src} does not exist. abort!`);
+                    //     break;
+                    // }
+                }
+            }
         });
     }
 }
