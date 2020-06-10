@@ -152,24 +152,29 @@
 * build.gradle 에서 ApplicationId 를 패치
 * MainActivity.kt 에서 package 패치
 * google-service.josn 을 hard link
-* lib/apps/APP_NAME/res/[APP_NAME].key.properties 파일을 android 폴더로 hard link
+* `flaap.json` 에 다라 원하는 파일을 hard link 하고 폴더를 복사한다.
+  * key.properties hard link
+  * google-service.json link
+  * Splash screen images 복사
+  등의 일을 한다.
 
 
 ### iOS 에서 하는 일
 
-* 각 앱의 Info.plist 를 ios/Runnder 폴더로 hard link
-* 각 앱의 GoogleService-Info.plist 를 ios/Runner 폴더로 hard link
-
+* `flaap.json` 에 다라 원하는 파일을 hard link 하고 폴더를 복사한다.
+  * key.properties hard link
+  * google-service.json link
+  * Splash screen images 복사
+  등의 일을 한다.
 
 
 ## 수동으로 해야 하는 것
 
 * Xcode 에서 Bundle ID 지정
-* Xcode 에서 기타 설정. 예) URL Scheme 등. 참고로 URL Scheme 은 Info.plist 에 저장되는데,
-  Info.plist 에 저장되는 정보는 Info.plist 가 분리되어져 있기 때문에 괜찮다.
-* Splash screen
-* Signing
-* Publishing
+* Xcode 에서 기타 설정.
+  * Info.plist 관리 등
+  * 예) URL Scheme 등. 참고로 URL Scheme 은 Info.plist 에 저장되는데,
+* Building & Publishing
   
 
 
