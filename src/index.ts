@@ -34,6 +34,7 @@ class App {
             await this.linkInfoPlist();
             await this.linkGoogleServiceJson();
             await this.linkGoogleServiceInfoPlist();
+            await this.linkKeyProperties();
 
         } catch (e) {
             this.error(e);
@@ -173,7 +174,7 @@ class App {
     }
     async linkInfoPlist() {
         console.log('re-link Info.plist');
-        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${yargs.argv.app}.Info.plist`);
+        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.Info.plist`);
         const dst = path.join(this.projectPath, 'ios', 'Runner', 'Info.plist');
 
 
@@ -186,7 +187,7 @@ class App {
 
     async linkGoogleServiceJson() {
         console.log('re-link google-services.json');
-        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${yargs.argv.app}.google-services.json`);
+        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.google-services.json`);
         const dst = path.join(this.projectPath, 'android', 'app', 'google-services.json');
 
         if (fs.existsSync(dst))
@@ -197,8 +198,19 @@ class App {
 
     async linkGoogleServiceInfoPlist() {
         console.log('re-link GoogleService-Info.plist');
-        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${yargs.argv.app}.GoogleService-Info.plist`);
+        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.GoogleService-Info.plist`);
         const dst = path.join(this.projectPath, 'ios', 'Runner', 'GoogleService-Info.plist');
+
+        if (fs.existsSync(dst))
+            fs.unlinkSync(dst);
+        fs.linkSync(src, dst);
+        console.log('success');
+    }
+
+    async linkKeyProperties() {
+        console.log('re-link key.properties');
+        const src = path.join(this.projectPath, 'lib', 'apps', this.app, 'res', `${this.app}.key.properties`);
+        const dst = path.join(this.projectPath, 'android', 'key.properties');
 
         if (fs.existsSync(dst))
             fs.unlinkSync(dst);

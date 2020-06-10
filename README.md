@@ -12,9 +12,12 @@
 
       와 같이 복사 할 위치를 적어준다.
 
+  * 이렇게 설정에서 복사할 파일을 지정 할 수 있으면, lib/apps/APP_NAME/settings.dart 등을 원하는 위치로 hard-link 할 수 있다.
+
   * 어떤 앱에서는 google-service.json 을 안 쓸 수도 있다.
 
 * Anndroid app store key 및 자동 sign
+  * 참고: https://flutter.dev/docs/deployment/android#reference-the-keystore-from-the-app
 * 앱 변경시,
   * default.app-icon.png 와 같이 하고 flutter icon 자동 생성. 또는 pubspec 을 바탕으로 자동 생성.
   * Android 의 경우, res/splash/ 폴더의 것을 android 폴더로 복사. Splash screen 을 자동으로 저장.
@@ -50,6 +53,8 @@
   * `flapp.json` 파일을 생성하고 설정한다.
 
 * `--path` 플러터 프로젝트 경로. 생략되면 현재 폴더를 플러터 프로젝트 경로로 인식
+  * 예)
+    * flapp --path ~/tmp/fluttercms --app korea_flutter_community
 * `--app` 앱 폴더 이름
   * 기본 앱은 `lib/apps/default/res` 에 정보가 위치하도록 한다.
   * 앱 이름은 하이픈(-) 대신 언더바(_)를 사용한다.
@@ -97,6 +102,7 @@
 * build.gradle 에서 ApplicationId 를 패치
 * MainActivity.kt 에서 package 패치
 * google-service.josn 을 hard link
+* lib/apps/APP_NAME/res/[APP_NAME].key.properties 파일을 android 폴더로 hard link
 
 
 ### iOS 에서 하는 일
@@ -109,9 +115,12 @@
 ## 수동으로 해야 하는 것
 
 * Xcode 에서 Bundle ID 지정
+* Xcode 에서 기타 설정. 예) URL Scheme 등. 참고로 URL Scheme 은 Info.plist 에 저장되는데,
+  Info.plist 에 저장되는 정보는 Info.plist 가 분리되어져 있기 때문에 괜찮다.
 * Splash screen
 * Signing
 * Publishing
+  
 
 
 
