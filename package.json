@@ -1,6 +1,6 @@
 {
   "name": "flapp",
-  "version": "1.0.20",
+  "version": "1.0.22",
   "description": "Multi app supporter for Flutter projects.",
   "main": "dist/index.js",
   "scripts": {

@@ -9,8 +9,9 @@
   * 참고: https://flutter.dev/docs/deployment/android#reference-the-keystore-from-the-app
 * 앱 변경시,
   * default.app-icon.png 와 같이 하고 flutter icon 자동 생성. 또는 pubspec 을 바탕으로 자동 생성.
-  * Android 의 경우, res/splash/ 폴더의 것을 android 폴더로 복사. Splash screen 을 자동으로 저장.
 
+* 앱 이름 변경
+  * Android 와 iOS 모두 지원
 
 ## 플러터의 Monorepo 한계점
 
