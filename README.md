@@ -1,6 +1,6 @@
-# Flutter Multi Apps
+# Flapp
 
-* 플러터의 monorepo 기능을 쉽게 도와준다.
+Flapp helps you manage multiple apps in one project. It's so-called `monorepo`.
 
 ## TODO
 
@@ -34,23 +34,29 @@
 * 그래서 A 와 B 모두 동일한 패키지를 쓰며, 거의 동일한 코드에서 UI 만 바꾸어서 앱을 만드는 경우를 (현재로서는) 목표로 하고 있다.
 
 
-## 사용법
+## Installation
 
-* 설치
-  * `# npm i -g flapp` 와 같이 global 영역에 설치한다.
+* Install `flapp` globally.
+  * `npm i -g flapp`
 
-* Flutter 프로젝트 폴더에 설정 파일 생성
-  * `flapp.json` 파일을 생성하고 설정한다.
+* Create `flapp.json` under Flutter porject folder.
 
-* `--path` 플러터 프로젝트 경로. 생략되면 현재 폴더를 플러터 프로젝트 경로로 인식
-  * 예)
+
+## Usages
+
+Run `flaap` with the following commands.
+
+* `--path` with Flutter project folder. If you omit `--path` option, it will consider that current working directory is Flutter project folder.
+  * Example)
     * flapp --path ~/tmp/fluttercms --app korea_flutter_community
-* `--app` 앱 폴더 이름
-  * 기본 앱은 `lib/apps/default/res` 에 정보가 위치하도록 한다.
-  * 앱 이름은 하이픈(-) 대신 언더바(_)를 사용한다.
-  * 예)
+
+* `--app` with app name to change to the app.
+  * Example)
     * flapp --app default
     * flapp --app my_app
+
+* `--doctor` to check if everything is okay.
+  * `--doctor` option will check the package name in `pubspec.yaml` and its folders.
 
 
 ### 설정
@@ -72,6 +78,12 @@
 }
 ```
 
+* apps 속성 아래에 APP_NAME 이 들어가는데, 주의해야 할 것은
+  * pubspec.yaml 에 들어 있는 name 과 APP_NAME 그리고 `lib/apps/APP_NAME` 이 세개가 동일한 값이어야 한다.
+  * APP_NAME 에는 하이픈을 사용 할 수 없으며, 대신 언더바(_)를 사용 할 수 있다.
+
+
+  * The default app that is created by `flutter` CLI command should be reside under `lib/apps/default/res` folder.
 * "apps" 하위에 각 앱 설정을 한다.
   * "AppId" 는 Android 의 package name 이며, iOS 의 Bundle ID 이다.
 
@@ -186,9 +198,18 @@
 
 ### 실행
 
+* 앱 변경 테스트
+
 ```
 nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts --path ~/tmp/fluttercms --app korea_flutter_community
 ```
+
+* Doctor 테스트 실행
+
+```
+$ nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts --path ~/apps/study/fluttercms/ --doctor
+```
+
 
 ### 배포
 
